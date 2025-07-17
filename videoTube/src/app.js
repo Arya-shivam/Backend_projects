@@ -19,7 +19,7 @@ app.use(cors({
 // routes for health Check
 
 app.use("/api/v1/healthCheck",healthCheckRouter)
-app.use("api/v1/user",userRouter)
+app.use("/api/v1/users",userRouter)
 
 
 
