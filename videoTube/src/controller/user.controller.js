@@ -241,5 +241,10 @@ export {
   registerUser, 
   loginUser, 
   newRefreshToken, 
-  logoutUser 
+  logoutUser, 
+  getCurrentUser,
+  changePassword,
+  updateUserInfo,
+  updateUserAvatar,
+  updateUserCoverImage  
 };
