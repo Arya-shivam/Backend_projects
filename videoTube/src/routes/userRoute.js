@@ -36,7 +36,7 @@ router.route("/logout").post(verifyJwt,logoutUser)
 router.route("/currentUser").get(verifyJwt, getCurrentUser)
 router.route("/changePassword").post(verifyJwt, changePassword)
 router.route("/updateUserInfo").post(verifyJwt, updateUserInfo)
-router.route("/updateUserAvatar").post(verifyJwt, updateUserAvatar)
-router.route("/updateUserCoverImage").post(verifyJwt, updateUserCoverImage)
+router.route("/updateUserAvatar").post(verifyJwt, upload.single("avatar"), updateUserAvatar)
+router.route("/updateUserCoverImage").post(verifyJwt, upload.single("coverImage"), updateUserCoverImage)
 
 export default router

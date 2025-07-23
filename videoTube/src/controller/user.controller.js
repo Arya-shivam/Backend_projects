@@ -3,7 +3,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { ApiError } from "../utils/ApiError.js";
 import { User } from "../models/user.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
-import { jwt } from "jsonwebtoken";
+import  jwt  from "jsonwebtoken";
 import { options } from "../contants.js";
 
 
@@ -58,32 +58,32 @@ const registerUser = asyncHandler(async (req, res) => {
 
 const generateAccessAndRefreshToken = async (userId) => {
   try {
-    User.findOne(userId)
+    const user = await User.findById(userId);
+    if (!user) throw new ApiError(400, "User not found")
+    // Generate access token
+    const accesstoken = user.generateAccessToken();
+    const refreshtoken = user.generateRefreshToken();
 
-    if (!User) throw new ApiError(400, "User not found")
-
-    const accesstoken = User.generateAccessToken();
-    const refreshtoken = User.generateRefreshtoken();
-
-    User.refreshToken = refreshtoken;
-    await User.save({ validateBeforeSave: false });
+    user.refreshToken = refreshtoken;
+    await user.save({ validateBeforeSave: false });
     return { accesstoken, refreshtoken }
   } catch (error) {
+    console.error("Error in generateAccessAndRefreshToken:", error);
     throw new ApiError(400, "error generating tokens")
   }
 }
 
 const loginUser = asyncHandler(async (req, res) => {
-  const { email, password, username } = req.body;
+  const { email, password} = req.body;
 
   const user = await User.findOne({ email })
   if (!user) { throw new ApiError(401, " user not found ") }
 
   //validate user
-  const isValid = await User.isPasswordCorrect(password)
+  const isValid = await user.isPasswordCorrect(password)
   if (!isValid) { throw new ApiError(402, "Invalid password") }
 
-  const { accesstoken, refreshtoken } = generateAccessAndRefreshToken(user._id);
+  const { accesstoken, refreshtoken } = await generateAccessAndRefreshToken(user._id);
 
   const loggedInUser = await User.findById(user._id).select("-password")
 
@@ -166,23 +166,21 @@ const getCurrentUser = asyncHandler(async (req, res) => {
 });
 
 const changePassword = asyncHandler(async (req, res) => {
-  const {oldPassword, newPassword} = req.body;
+  const { oldPassword, newPassword } = req.body;
   if (!oldPassword || !newPassword) {
     throw new ApiError(400, "Old and new passwords are required");
   }
-  const isValid = await User.isPasswordCorrect(oldPassword);
-  if (!isValid) {
-    throw new ApiError(401, "Old password is incorrect");
-  }
-  const user = await User.findByIdAndUpdate(
-    req.user._id,
-    { password: newPassword },
-    { new: true, runValidators: true }
-  );
+  const user = await User.findById(req.user._id);
   if (!user) {
     throw new ApiError(404, "User not found");
   }
-  return res.status(200).json(new ApiResponse(200, user, "Password changed successfully"));
+  const isValid = await user.isPasswordCorrect(oldPassword);
+  if (!isValid) {
+    throw new ApiError(401, "Old password is incorrect");
+  }
+  user.password = newPassword;
+  await user.save(); // triggers pre('save') and hashes password
+  return res.status(200).json(new ApiResponse(200, null, "Password changed successfully"));
 })
 
 const updateUserInfo = asyncHandler(async (req, res) => {
@@ -203,7 +201,7 @@ const updateUserInfo = asyncHandler(async (req, res) => {
 
 
 const updateUserAvatar = asyncHandler(async (req, res) => {
-  const localAvatarPath = req.files?.path;
+  const localAvatarPath = req.file?.path;
   if (!localAvatarPath) {
     throw new ApiError(400, "Avatar image is required");
   }
@@ -220,7 +218,7 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
 })
 
 const updateUserCoverImage = asyncHandler(async (req, res) => {
-  const localCoverImagePath = req.files?.path;
+  const localCoverImagePath = req.file?.path;
   if (!localCoverImagePath) {
     throw new ApiError(400, "Cover image is required");
   }
