@@ -23,8 +23,7 @@ const VideoSchema = new Schema({
         default:0
     },
     duration:{
-        type:String,
-        required:true,
+        type: Number,
     },
     isPublished:{
         type:Boolean,
@@ -34,8 +33,16 @@ const VideoSchema = new Schema({
         type:Schema.Types.ObjectId,
         required:true,
         ref:"User"
-    }
-},{timestamps:true}
+    },
+    tags: [{ type: String }],           // Video tags/categories
+    category: { type: String },         // Video category
+    visibility: { 
+        type: String, 
+        enum: ['public', 'unlisted', 'private'], 
+        default: 'public' 
+    },
+},
+{timestamps:true}
 )
 
 VideoSchema.plugin(mongooseAggregatePaginate)

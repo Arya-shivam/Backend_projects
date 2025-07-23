@@ -34,9 +34,9 @@ router.route("/refreshToken").post(newRefreshToken)
 //secured routes
 router.route("/logout").post(verifyJwt,logoutUser)
 router.route("/currentUser").get(verifyJwt, getCurrentUser)
-router.route("/changePassword").post(verifyJwt, changePassword)
-router.route("/updateUserInfo").post(verifyJwt, updateUserInfo)
-router.route("/updateUserAvatar").post(verifyJwt, upload.single("avatar"), updateUserAvatar)
-router.route("/updateUserCoverImage").post(verifyJwt, upload.single("coverImage"), updateUserCoverImage)
+router.route("/changePassword").put(verifyJwt, changePassword)
+router.route("/updateUserInfo").put(verifyJwt, updateUserInfo)
+router.route("/updateUserAvatar").put(verifyJwt, upload.single("avatar"), updateUserAvatar)
+router.route("/updateUserCoverImage").put(verifyJwt, upload.single("coverImage"), updateUserCoverImage)
 
 export default router
