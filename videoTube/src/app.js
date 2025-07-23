@@ -3,7 +3,8 @@ import cors from 'cors'
 import healthCheckRouter from './routes/healthCheck.route.js'
 import cookieParser from 'cookie-parser';
 import userRouter from './routes/userRoute.js'
-import videoRouter from './routes/videoRoutes.js'
+import videoRouter from './routes/videoRoute.js'
+import channelRouter from './routes/channelRoute.js'
 
 const app = express()
 
@@ -22,6 +23,7 @@ app.use(cors({
 app.use("/api/v1/healthCheck",healthCheckRouter)
 app.use("/api/v1/users",userRouter)
 app.use("/api/v1/videos",videoRouter)
+app.use("/api/v1/channels",channelRouter)
 
 
 

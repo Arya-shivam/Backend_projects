@@ -2,15 +2,29 @@ import { asyncHandler } from '../utils/asyncHandler.js';
 import { ApiResponse } from '../utils/ApiResponse.js';
 import { ApiError } from '../utils/ApiError.js';
 import { uploadOnCloudinary } from '../utils/cloudinary.js';
-import {Video} from '../models/video.model.js';
+import { Video } from '../models/video.model.js';
+import { Channel } from '../models/channel.model.js';
 import { User } from '../models/user.model.js';
 
 // Uploading new video
 const uploadVideo = asyncHandler( async(req,res)=>{
-    const {title, description, tags, category, visibility} = req.body;
+    const {title, description, tags, category, visibility, channelId} = req.body;
     if(!title || ! description){
         throw new ApiError(400,"Title and description are required")
     }
+    if(!channelId){
+        throw new ApiError(400,"Channel ID is required")
+    }
+
+    // Verify channel exists and user owns it
+    const channel = await Channel.findById(channelId);
+    if(!channel){
+        throw new ApiError(404,"Channel not found")
+    }
+    if(channel.owner.toString() !== req.user._id.toString()){
+        throw new ApiError(403,"You can only upload videos to your own channels")
+    }
+
     const owner = req.user._id;
     const videoFile = req.files?.videoFile?.[0]?.path;
     const thumbnail = req.files?.thumbnail?.[0]?.path;
@@ -30,14 +44,25 @@ const uploadVideo = asyncHandler( async(req,res)=>{
         thumbnail: uploadedThumbnail.url,
         duration,
         tags: tags ? tags.split(',').map(tag => tag.trim()) : [],
-        category: category || 'General',
+        category: category || 'Other',
         visibility: visibility || 'public',
-        owner
+        owner,
+        channel: channelId
     })
+
+    // Increment channel video count
+    await channel.incrementVideos();
+
     if(!video){
         throw new ApiError(500,"Something went wrong while uploading video")
     }
-    return res.status(201).json(new ApiResponse(200,video,"Video uploaded successfully"))
+
+    // Populate channel info in response
+    const populatedVideo = await Video.findById(video._id)
+        .populate('channel', 'name handle avatar')
+        .populate('owner', 'username fullname');
+
+    return res.status(201).json(new ApiResponse(201, populatedVideo, "Video uploaded successfully"))
 })
 
 // Get all videos with pagination and filtering
@@ -51,6 +76,7 @@ const getAllVideos = asyncHandler(async (req, res) => {
 
     const videos = await Video.find(filter)
         .populate('owner', 'username fullname avatar')
+        .populate('channel', 'name handle avatar')
         .sort({ createdAt: -1 })
         .limit(limit * 1)
         .skip((page - 1) * limit);
@@ -66,22 +92,23 @@ const getAllVideos = asyncHandler(async (req, res) => {
 });
 
 // Get video by ID
-// const getVideoById = asyncHandler(async (req, res) => {
-//     const { videoId } = req.params;
+const getVideoById = asyncHandler(async (req, res) => {
+    const { videoId } = req.params;
 
-//     const video = await Video.findById(videoId)
-//         .populate('owner', 'username fullname avatar');
+    const video = await Video.findById(videoId)
+        .populate('owner', 'username fullname avatar')
+        .populate('channel', 'name handle avatar');
 
-//     if (!video) {
-//         throw new ApiError(404, "Video not found");
-//     }
+    if (!video) {
+        throw new ApiError(404, "Video not found");
+    }
 
-//     // Increment views
-//     video.views += 1;
-//     await video.save();
+    // Increment views
+    video.views += 1;
+    await video.save();
 
-//     return res.status(200).json(new ApiResponse(200, video, "Video fetched successfully"));
-// });
+    return res.status(200).json(new ApiResponse(200, video, "Video fetched successfully"));
+});
 
 // Update video info
 const updateVideo = asyncHandler(async (req, res) => {
@@ -179,9 +206,9 @@ const getVideosByCategory = asyncHandler(async (req, res) => {
 export {
     uploadVideo,
     getAllVideos,
-    // getVideoById,
+    getVideoById,
     updateVideo,
     deleteVideo,
-    // getUserVideos,
+    getUserVideos,
     getVideosByCategory
 }

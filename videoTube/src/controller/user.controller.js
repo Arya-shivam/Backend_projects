@@ -2,6 +2,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { ApiError } from "../utils/ApiError.js";
 import { User } from "../models/user.model.js";
+import { Channel } from "../models/channel.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import  jwt  from "jsonwebtoken";
 import { options } from "../contants.js";
@@ -49,6 +50,23 @@ const registerUser = asyncHandler(async (req, res) => {
   if (!createdUser) {
     throw new ApiResponse(500, "Something went wrong while registering User")
   }
+
+  // Create default channel for the user
+  try {
+    const defaultChannel = await Channel.create({
+      name: createdUser.fullname,
+      handle: createdUser.username,
+      description: `Welcome to ${createdUser.fullname}'s channel!`,
+      owner: createdUser._id,
+      isDefault: true,
+      avatar: createdUser.avatar
+    });
+    console.log(`Default channel created for user: ${createdUser.username}`);
+  } catch (error) {
+    console.error("Error creating default channel:", error);
+    // Don't fail registration if channel creation fails
+  }
+
   return res
     .status(201)
     .json(new ApiResponse(200, createdUser, "User Registered Successfully"))

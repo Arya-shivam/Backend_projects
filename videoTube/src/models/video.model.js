@@ -24,6 +24,7 @@ const VideoSchema = new Schema({
     },
     duration:{
         type: Number,
+        required: true
     },
     isPublished:{
         type:Boolean,
@@ -34,12 +35,29 @@ const VideoSchema = new Schema({
         required:true,
         ref:"User"
     },
-    tags: [{ type: String }],           // Video tags/categories
-    category: { type: String },         // Video category
-    visibility: { 
-        type: String, 
-        enum: ['public', 'unlisted', 'private'], 
-        default: 'public' 
+    channel:{
+        type:Schema.Types.ObjectId,
+        required:true,
+        ref:"Channel"
+    },
+    tags: [{ type: String }],
+    category: {
+        type: String,
+        enum: ['Gaming', 'Music', 'Sports', 'News', 'Entertainment', 'Education', 'Technology', 'Lifestyle', 'Other'],
+        default: 'Other'
+    },
+    visibility: {
+        type: String,
+        enum: ['public', 'unlisted', 'private'],
+        default: 'public'
+    },
+    likes: {
+        type: Number,
+        default: 0
+    },
+    dislikes: {
+        type: Number,
+        default: 0
     },
 },
 {timestamps:true}
