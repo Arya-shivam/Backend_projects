@@ -30,6 +30,18 @@ import {
         getUserLikedVideos
    } from "../controller/like.controller.js";
 import { verifyJwt } from "../middlewares/auth.middleware.js";
+import {
+        addTweet,
+        getAllTweets,
+        getTweetsByUser,
+        deleteTweet
+   } from "../controller/tweet.controller.js";
+import {
+        createPlaylist,
+        getAllPlaylists,
+        getUserPlaylists,
+        deletePlaylist
+   } from "../controller/playlist.controller.js";
 
 const router = Router()
 
@@ -87,5 +99,19 @@ router.route("/videos/upload").post(
 router.route("/videos/:videoId/update").put(verifyJwt, updateVideo)
 router.route("/videos/:videoId/delete").delete(verifyJwt, deleteVideo)
 router.route("/videos/liked").get(verifyJwt, getUserLikedVideos)
+
+
+// tweet management routes
+router.route("/tweets/add").post(verifyJwt, addTweet)
+router.route("/tweets").get(verifyJwt, getAllTweets)
+router.route("/tweets/user/:userId").get(verifyJwt, getTweetsByUser)
+router.route("/tweets/:tweetId/delete").delete(verifyJwt, deleteTweet)
+
+// playlist management routes
+
+router.route("/newPlaylist").post(verifyJwt, createPlaylist)
+router.route("/playlists").get(verifyJwt, getAllPlaylists)
+router.route("/playlists/user/:userId").get(verifyJwt, getUserPlaylists)
+router.route("/playlists/:playlistId/delete").delete(verifyJwt, deletePlaylist)
 
 export default router
