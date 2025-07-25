@@ -26,6 +26,9 @@ import {
         updateVideo,
         deleteVideo
    } from "../controller/video.controller.js";
+import {
+        getUserLikedVideos
+   } from "../controller/like.controller.js";
 import { verifyJwt } from "../middlewares/auth.middleware.js";
 
 const router = Router()
@@ -83,5 +86,6 @@ router.route("/videos/upload").post(
 );
 router.route("/videos/:videoId/update").put(verifyJwt, updateVideo)
 router.route("/videos/:videoId/delete").delete(verifyJwt, deleteVideo)
+router.route("/videos/liked").get(verifyJwt, getUserLikedVideos)
 
 export default router
