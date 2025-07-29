@@ -8,7 +8,9 @@ import { loginUser,
         changePassword,
         updateUserInfo,
         updateUserAvatar,
-        updateUserCoverImage
+        updateUserCoverImage,
+        getUserChannelProfile,
+        getWatchedVideosList
    } from "../controller/user.controller.js";
 import {
         createChannel,
@@ -80,6 +82,8 @@ router.route("/channels/:channelId/delete").delete(verifyJwt, deleteChannel)
 router.route("/channels/:channelId/analytics").get(verifyJwt, getChannelAnalytics)
 router.route("/channels/:channelId/videos").get(verifyJwt, getChannelVideos)
 router.route("/channel/:channelHandle/videos").get(verifyJwt, getChannelVideosByHandle)
+router.route("/channel/:username").get(verifyJwt, getUserChannelProfile)
+router.route("/watchedVideos").get(verifyJwt, getWatchedVideosList)
 
 // Video management routes (user-centric)
 router.route("/videos/upload").post(
