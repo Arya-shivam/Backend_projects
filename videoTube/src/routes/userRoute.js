@@ -42,7 +42,10 @@ import {
         createPlaylist,
         getAllPlaylists,
         getUserPlaylists,
-        deletePlaylist
+        deletePlaylist,
+        addVideoToPlaylist,
+        removeVideoFromPlaylist,
+        getPlaylistVideos
    } from "../controller/playlist.controller.js";
 
 const router = Router()
@@ -116,6 +119,9 @@ router.route("/tweets/:tweetId/delete").delete(verifyJwt, deleteTweet)
 router.route("/newPlaylist").post(verifyJwt, createPlaylist)
 router.route("/playlists").get(verifyJwt, getAllPlaylists)
 router.route("/playlists/user/:userId").get(verifyJwt, getUserPlaylists)
+router.route("/playlists/:playlistId").get(verifyJwt, getPlaylistVideos)
 router.route("/playlists/:playlistId/delete").delete(verifyJwt, deletePlaylist)
+router.route("/playlists/:playlistId/add-video").post(verifyJwt, addVideoToPlaylist)
+router.route("/playlists/:playlistId/remove-video/:videoId").delete(verifyJwt, removeVideoFromPlaylist)
 
 export default router

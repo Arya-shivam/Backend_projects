@@ -65,4 +65,13 @@ const VideoSchema = new Schema({
 
 VideoSchema.plugin(mongooseAggregatePaginate)
 
-export const Video = new mongoose.model("Video",VideoSchema)
+// Add indexes for better search and query performance
+VideoSchema.index({ title: 'text', description: 'text', tags: 'text' });
+VideoSchema.index({ category: 1 });
+VideoSchema.index({ visibility: 1 });
+VideoSchema.index({ owner: 1 });
+VideoSchema.index({ channel: 1 });
+VideoSchema.index({ views: -1 });
+VideoSchema.index({ createdAt: -1 });
+
+export const Video = mongoose.model("Video",VideoSchema)

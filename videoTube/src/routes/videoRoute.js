@@ -1,10 +1,13 @@
 import { Router } from "express";
 import { verifyJwt } from "../middlewares/auth.middleware.js";
+import { optionalAuth } from "../middlewares/optionalAuth.middleware.js";
+import { optionalAuth } from "../middlewares/optionalAuth.middleware.js";
 import {
     getAllVideos,
     getVideoById,
     getUserVideos,
-    getVideosByCategory
+    getVideosByCategory,
+    incrementVideoViews
 } from "../controller/video.controller.js";
 import {
     toggleVideoLike,
@@ -28,6 +31,9 @@ router.route("/").get(getAllVideos);
 router.route("/:videoId").get(getVideoById);
 router.route("/category/:category").get(getVideosByCategory);
 router.route("/user/:userId").get(getUserVideos);
+
+// View tracking (optional authentication - works for both logged in and anonymous users)
+router.route("/:videoId/view").post(optionalAuth, incrementVideoViews);
 
 // Video interaction routes (require authentication)
 // Like routes

@@ -203,6 +203,34 @@ const getVideosByCategory = asyncHandler(async (req, res) => {
     }, "Category videos fetched successfully"));
 });
 
+// Increment video views
+const incrementVideoViews = asyncHandler(async (req, res) => {
+    const { videoId } = req.params;
+
+    const video = await Video.findByIdAndUpdate(
+        videoId,
+        { $inc: { views: 1 } },
+        { new: true }
+    ).populate('owner', 'username fullname avatar')
+     .populate('channel', 'name handle avatar');
+
+    if (!video) {
+        throw new ApiError(404, "Video not found");
+    }
+
+    // Add to user's watch history if authenticated
+    if (req.user) {
+        await User.findByIdAndUpdate(
+            req.user._id,
+            {
+                $addToSet: { watchHistory: videoId } // addToSet prevents duplicates
+            }
+        );
+    }
+
+    return res.status(200).json(new ApiResponse(200, video, "Video view incremented successfully"));
+});
+
 export {
     uploadVideo,
     getAllVideos,
@@ -210,5 +238,6 @@ export {
     updateVideo,
     deleteVideo,
     getUserVideos,
-    getVideosByCategory
+    getVideosByCategory,
+    incrementVideoViews
 }
