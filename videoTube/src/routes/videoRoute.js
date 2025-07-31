@@ -1,7 +1,6 @@
 import { Router } from "express";
 import { verifyJwt } from "../middlewares/auth.middleware.js";
 import { optionalAuth } from "../middlewares/optionalAuth.middleware.js";
-import { optionalAuth } from "../middlewares/optionalAuth.middleware.js";
 import {
     getAllVideos,
     getVideoById,

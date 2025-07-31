@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VideoTube Frontend Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #0f0f0f;
+            color: #ffffff;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .test-section {
+            background-color: #1a1a1a;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            border-left: 4px solid #065fd4;
+        }
+        .success {
+            border-left-color: #4caf50;
+        }
+        .error {
+            border-left-color: #f44336;
+        }
+        .warning {
+            border-left-color: #ff9800;
+        }
+        button {
+            background-color: #065fd4;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0856c7;
+        }
+        .status {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        pre {
+            background-color: #0f0f0f;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎥 VideoTube Frontend Test Page</h1>
+        <p>This page tests the connection between the frontend and backend.</p>
+
+        <div class="test-section" id="backendStatus">
+            <h3>Backend Connection Test</h3>
+            <div class="status" id="connectionStatus">Testing...</div>
+            <button onclick="testBackendConnection()">Test Connection</button>
+            <div id="connectionDetails"></div>
+        </div>
+
+        <div class="test-section" id="authTest">
+            <h3>Authentication Test</h3>
+            <div class="status" id="authStatus">Not tested</div>
+            <button onclick="testAuth()">Test Auth System</button>
+            <div id="authDetails"></div>
+        </div>
+
+        <div class="test-section" id="apiTest">
+            <h3>API Endpoints Test</h3>
+            <div class="status" id="apiStatus">Not tested</div>
+            <button onclick="testAPIEndpoints()">Test API Endpoints</button>
+            <div id="apiDetails"></div>
+        </div>
+
+        <div class="test-section" id="frontendTest">
+            <h3>Frontend Components Test</h3>
+            <div class="status" id="frontendStatus">Not tested</div>
+            <button onclick="testFrontendComponents()">Test Components</button>
+            <div id="frontendDetails"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>Quick Actions</h3>
+            <button onclick="window.location.href='index.html'">Go to Main App</button>
+            <button onclick="clearLocalStorage()">Clear Local Storage</button>
+            <button onclick="showSystemInfo()">Show System Info</button>
+        </div>
+
+        <div class="test-section" id="systemInfo" style="display: none;">
+            <h3>System Information</h3>
+            <div id="systemDetails"></div>
+        </div>
+    </div>
+
+    <script>
+        // Test backend connection
+        async function testBackendConnection() {
+            const statusEl = document.getElementById('connectionStatus');
+            const detailsEl = document.getElementById('connectionDetails');
+            const sectionEl = document.getElementById('backendStatus');
+            
+            statusEl.textContent = 'Testing...';
+            sectionEl.className = 'test-section';
+            
+            try {
+                const response = await fetch('http://localhost:8001/api/v1/healthCheck');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    statusEl.textContent = '✅ Backend Connected Successfully';
+                    sectionEl.className = 'test-section success';
+                    detailsEl.innerHTML = `
+                        <p><strong>Status:</strong> ${response.status}</p>
+                        <p><strong>Response:</strong></p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${data.message || 'Unknown error'}`);
+                }
+            } catch (error) {
+                statusEl.textContent = '❌ Backend Connection Failed';
+                sectionEl.className = 'test-section error';
+                detailsEl.innerHTML = `
+                    <p><strong>Error:</strong> ${error.message}</p>
+                    <p><strong>Possible causes:</strong></p>
+                    <ul>
+                        <li>Backend server is not running</li>
+                        <li>Backend is running on a different port</li>
+                        <li>CORS is not properly configured</li>
+                        <li>Network connectivity issues</li>
+                    </ul>
+                `;
+            }
+        }
+
+        // Test authentication system
+        async function testAuth() {
+            const statusEl = document.getElementById('authStatus');
+            const detailsEl = document.getElementById('authDetails');
+            const sectionEl = document.getElementById('authTest');
+            
+            statusEl.textContent = 'Testing...';
+            sectionEl.className = 'test-section';
+            
+            try {
+                // Test if auth manager is loaded
+                if (typeof window.authManager === 'undefined') {
+                    throw new Error('Auth manager not loaded');
+                }
+                
+                // Test auth endpoints
+                const tests = [];
+                
+                // Test login endpoint (should fail with no credentials)
+                try {
+                    await fetch('http://localhost:8001/api/v1/users/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({})
+                    });
+                    tests.push('✅ Login endpoint accessible');
+                } catch (error) {
+                    tests.push('❌ Login endpoint error: ' + error.message);
+                }
+                
+                // Test register endpoint (should fail with no data)
+                try {
+                    await fetch('http://localhost:8001/api/v1/users/register', {
+                        method: 'POST'
+                    });
+                    tests.push('✅ Register endpoint accessible');
+                } catch (error) {
+                    tests.push('❌ Register endpoint error: ' + error.message);
+                }
+                
+                statusEl.textContent = '✅ Auth System Available';
+                sectionEl.className = 'test-section success';
+                detailsEl.innerHTML = `
+                    <p><strong>Auth Manager:</strong> Loaded</p>
+                    <p><strong>Endpoint Tests:</strong></p>
+                    <ul>${tests.map(test => `<li>${test}</li>`).join('')}</ul>
+                `;
+                
+            } catch (error) {
+                statusEl.textContent = '❌ Auth System Error';
+                sectionEl.className = 'test-section error';
+                detailsEl.innerHTML = `<p><strong>Error:</strong> ${error.message}</p>`;
+            }
+        }
+
+        // Test API endpoints
+        async function testAPIEndpoints() {
+            const statusEl = document.getElementById('apiStatus');
+            const detailsEl = document.getElementById('apiDetails');
+            const sectionEl = document.getElementById('apiTest');
+            
+            statusEl.textContent = 'Testing...';
+            sectionEl.className = 'test-section';
+            
+            const endpoints = [
+                { name: 'Health Check', url: '/healthCheck', method: 'GET' },
+                { name: 'Get Videos', url: '/videos', method: 'GET' },
+                { name: 'Search Videos', url: '/search/videos?q=test', method: 'GET' },
+                { name: 'Get Channels', url: '/channels', method: 'GET' }
+            ];
+            
+            const results = [];
+            
+            for (const endpoint of endpoints) {
+                try {
+                    const response = await fetch(`http://localhost:8001/api/v1${endpoint.url}`, {
+                        method: endpoint.method
+                    });
+                    
+                    if (response.ok) {
+                        results.push(`✅ ${endpoint.name}: OK (${response.status})`);
+                    } else {
+                        results.push(`⚠️ ${endpoint.name}: ${response.status}`);
+                    }
+                } catch (error) {
+                    results.push(`❌ ${endpoint.name}: ${error.message}`);
+                }
+            }
+            
+            const successCount = results.filter(r => r.startsWith('✅')).length;
+            const totalCount = results.length;
+            
+            if (successCount === totalCount) {
+                statusEl.textContent = '✅ All API Endpoints Working';
+                sectionEl.className = 'test-section success';
+            } else if (successCount > 0) {
+                statusEl.textContent = `⚠️ ${successCount}/${totalCount} Endpoints Working`;
+                sectionEl.className = 'test-section warning';
+            } else {
+                statusEl.textContent = '❌ API Endpoints Not Working';
+                sectionEl.className = 'test-section error';
+            }
+            
+            detailsEl.innerHTML = `
+                <p><strong>Results:</strong></p>
+                <ul>${results.map(result => `<li>${result}</li>`).join('')}</ul>
+            `;
+        }
+
+        // Test frontend components
+        function testFrontendComponents() {
+            const statusEl = document.getElementById('frontendStatus');
+            const detailsEl = document.getElementById('frontendDetails');
+            const sectionEl = document.getElementById('frontendTest');
+            
+            statusEl.textContent = 'Testing...';
+            sectionEl.className = 'test-section';
+            
+            const components = [
+                { name: 'Config', check: () => typeof window.API_CONFIG !== 'undefined' },
+                { name: 'Auth Manager', check: () => typeof window.authManager !== 'undefined' },
+                { name: 'API Client', check: () => typeof window.apiClient !== 'undefined' },
+                { name: 'UI Manager', check: () => typeof window.uiManager !== 'undefined' },
+                { name: 'Video Manager', check: () => typeof window.videoManager !== 'undefined' },
+                { name: 'Search Manager', check: () => typeof window.searchManager !== 'undefined' },
+                { name: 'App Instance', check: () => typeof window.app !== 'undefined' },
+                { name: 'Utils', check: () => typeof window.Utils !== 'undefined' }
+            ];
+            
+            const results = components.map(component => {
+                const isLoaded = component.check();
+                return `${isLoaded ? '✅' : '❌'} ${component.name}: ${isLoaded ? 'Loaded' : 'Not Found'}`;
+            });
+            
+            const successCount = results.filter(r => r.startsWith('✅')).length;
+            const totalCount = results.length;
+            
+            if (successCount === totalCount) {
+                statusEl.textContent = '✅ All Components Loaded';
+                sectionEl.className = 'test-section success';
+            } else {
+                statusEl.textContent = `❌ ${successCount}/${totalCount} Components Loaded`;
+                sectionEl.className = 'test-section error';
+            }
+            
+            detailsEl.innerHTML = `
+                <p><strong>Component Status:</strong></p>
+                <ul>${results.map(result => `<li>${result}</li>`).join('')}</ul>
+            `;
+        }
+
+        // Clear local storage
+        function clearLocalStorage() {
+            localStorage.clear();
+            alert('Local storage cleared!');
+        }
+
+        // Show system information
+        function showSystemInfo() {
+            const infoEl = document.getElementById('systemInfo');
+            const detailsEl = document.getElementById('systemDetails');
+            
+            const info = {
+                'User Agent': navigator.userAgent,
+                'Platform': navigator.platform,
+                'Language': navigator.language,
+                'Online': navigator.onLine,
+                'Cookies Enabled': navigator.cookieEnabled,
+                'Local Storage': typeof(Storage) !== "undefined",
+                'Current URL': window.location.href,
+                'Screen Resolution': `${screen.width}x${screen.height}`,
+                'Viewport Size': `${window.innerWidth}x${window.innerHeight}`
+            };
+            
+            detailsEl.innerHTML = Object.entries(info)
+                .map(([key, value]) => `<p><strong>${key}:</strong> ${value}</p>`)
+                .join('');
+            
+            infoEl.style.display = 'block';
+        }
+
+        // Auto-run basic tests on page load
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                testBackendConnection();
+                testFrontendComponents();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

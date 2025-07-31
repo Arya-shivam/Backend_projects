@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VideoTube - Share Your World</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation Header -->
+    <header class="navbar">
+        <div class="nav-left">
+            <button class="menu-btn" id="menuBtn">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="logo">
+                <i class="fab fa-youtube"></i>
+                <span>VideoTube</span>
+            </div>
+        </div>
+        
+        <div class="nav-center">
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Search videos, channels, users..." class="search-input">
+                <button class="search-btn" id="searchBtn">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div class="nav-right">
+            <button class="nav-icon" id="uploadBtn" title="Upload Video">
+                <i class="fas fa-video"></i>
+            </button>
+            <button class="nav-icon" id="notificationBtn" title="Notifications">
+                <i class="fas fa-bell"></i>
+            </button>
+            
+            <!-- User Menu -->
+            <div class="user-menu" id="userMenu">
+                <button class="user-avatar" id="userAvatar">
+                    <i class="fas fa-user-circle"></i>
+                </button>
+                <div class="dropdown-menu" id="userDropdown">
+                    <div class="user-info" id="userInfo" style="display: none;">
+                        <img id="userAvatarImg" src="" alt="User Avatar" class="user-avatar-img">
+                        <div class="user-details">
+                            <span id="userFullName"></span>
+                            <span id="userEmail"></span>
+                        </div>
+                    </div>
+                    <div class="menu-divider"></div>
+                    <a href="#" id="myChannelBtn"><i class="fas fa-tv"></i> My Channel</a>
+                    <a href="#" id="myVideosBtn"><i class="fas fa-video"></i> My Videos</a>
+                    <a href="#" id="likedVideosBtn"><i class="fas fa-thumbs-up"></i> Liked Videos</a>
+                    <a href="#" id="playlistsBtn"><i class="fas fa-list"></i> Playlists</a>
+                    <a href="#" id="subscriptionsBtn"><i class="fas fa-users"></i> Subscriptions</a>
+                    <div class="menu-divider"></div>
+                    <a href="#" id="settingsBtn"><i class="fas fa-cog"></i> Settings</a>
+                    <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
+                </div>
+            </div>
+            
+            <!-- Login Button (shown when not logged in) -->
+            <button class="login-btn" id="loginBtn" style="display: none;">
+                <i class="fas fa-user"></i> Sign In
+            </button>
+        </div>
+    </header>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <nav class="sidebar-nav">
+            <div class="nav-section">
+                <a href="#" class="nav-item active" data-page="home">
+                    <i class="fas fa-home"></i>
+                    <span>Home</span>
+                </a>
+                <a href="#" class="nav-item" data-page="trending">
+                    <i class="fas fa-fire"></i>
+                    <span>Trending</span>
+                </a>
+                <a href="#" class="nav-item" data-page="subscriptions">
+                    <i class="fas fa-users"></i>
+                    <span>Subscriptions</span>
+                </a>
+            </div>
+            
+            <div class="nav-section">
+                <h3>Library</h3>
+                <a href="#" class="nav-item" data-page="history">
+                    <i class="fas fa-history"></i>
+                    <span>History</span>
+                </a>
+                <a href="#" class="nav-item" data-page="liked">
+                    <i class="fas fa-thumbs-up"></i>
+                    <span>Liked Videos</span>
+                </a>
+                <a href="#" class="nav-item" data-page="playlists">
+                    <i class="fas fa-list"></i>
+                    <span>Playlists</span>
+                </a>
+            </div>
+            
+            <div class="nav-section">
+                <h3>Categories</h3>
+                <a href="#" class="nav-item" data-category="Gaming">
+                    <i class="fas fa-gamepad"></i>
+                    <span>Gaming</span>
+                </a>
+                <a href="#" class="nav-item" data-category="Music">
+                    <i class="fas fa-music"></i>
+                    <span>Music</span>
+                </a>
+                <a href="#" class="nav-item" data-category="Sports">
+                    <i class="fas fa-football-ball"></i>
+                    <span>Sports</span>
+                </a>
+                <a href="#" class="nav-item" data-category="Technology">
+                    <i class="fas fa-laptop"></i>
+                    <span>Technology</span>
+                </a>
+                <a href="#" class="nav-item" data-category="Education">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span>Education</span>
+                </a>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content" id="mainContent">
+        <!-- Home Page -->
+        <div class="page" id="homePage">
+            <div class="video-grid" id="videoGrid">
+                <!-- Videos will be loaded here -->
+            </div>
+            <div class="loading" id="loading">
+                <i class="fas fa-spinner fa-spin"></i>
+                <span>Loading videos...</span>
+            </div>
+        </div>
+
+        <!-- Video Player Page -->
+        <div class="page" id="videoPlayerPage" style="display: none;">
+            <div class="video-player-container">
+                <div class="video-player">
+                    <video id="videoPlayer" controls>
+                        <source src="" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+                
+                <div class="video-info">
+                    <h1 id="videoTitle"></h1>
+                    <div class="video-meta">
+                        <div class="video-stats">
+                            <span id="videoViews"></span>
+                            <span id="videoDate"></span>
+                        </div>
+                        <div class="video-actions">
+                            <button class="action-btn" id="likeBtn">
+                                <i class="fas fa-thumbs-up"></i>
+                                <span id="likeCount">0</span>
+                            </button>
+                            <button class="action-btn" id="dislikeBtn">
+                                <i class="fas fa-thumbs-down"></i>
+                            </button>
+                            <button class="action-btn" id="shareBtn">
+                                <i class="fas fa-share"></i>
+                                <span>Share</span>
+                            </button>
+                            <button class="action-btn" id="saveBtn">
+                                <i class="fas fa-plus"></i>
+                                <span>Save</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="channel-info">
+                        <div class="channel-avatar">
+                            <img id="channelAvatar" src="" alt="Channel Avatar">
+                        </div>
+                        <div class="channel-details">
+                            <h3 id="channelName"></h3>
+                            <span id="channelSubscribers"></span>
+                        </div>
+                        <button class="subscribe-btn" id="subscribeBtn">Subscribe</button>
+                    </div>
+                    
+                    <div class="video-description">
+                        <p id="videoDescription"></p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Comments Section -->
+            <div class="comments-section">
+                <div class="comments-header">
+                    <h3>Comments</h3>
+                    <span id="commentCount">0</span>
+                </div>
+                
+                <div class="add-comment" id="addCommentSection" style="display: none;">
+                    <div class="comment-input-container">
+                        <textarea id="commentInput" placeholder="Add a comment..."></textarea>
+                        <div class="comment-actions">
+                            <button class="btn-secondary" id="cancelCommentBtn">Cancel</button>
+                            <button class="btn-primary" id="submitCommentBtn">Comment</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="comments-list" id="commentsList">
+                    <!-- Comments will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Search Results Page -->
+        <div class="page" id="searchPage" style="display: none;">
+            <div class="search-results">
+                <div class="search-filters">
+                    <button class="filter-btn active" data-type="all">All</button>
+                    <button class="filter-btn" data-type="videos">Videos</button>
+                    <button class="filter-btn" data-type="channels">Channels</button>
+                    <button class="filter-btn" data-type="users">Users</button>
+                </div>
+                <div class="search-results-content" id="searchResults">
+                    <!-- Search results will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modals -->
+    <!-- Login Modal -->
+    <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Sign In to VideoTube</h2>
+                <button class="close-btn" id="closeLoginModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="loginEmail">Email</label>
+                        <input type="email" id="loginEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Password</label>
+                        <input type="password" id="loginPassword" required>
+                    </div>
+                    <button type="submit" class="btn-primary">Sign In</button>
+                </form>
+                <p class="modal-footer">
+                    Don't have an account? 
+                    <a href="#" id="showRegisterModal">Sign up</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div class="modal" id="registerModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Create Account</h2>
+                <button class="close-btn" id="closeRegisterModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label for="registerFullName">Full Name</label>
+                        <input type="text" id="registerFullName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerUsername">Username</label>
+                        <input type="text" id="registerUsername" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerEmail">Email</label>
+                        <input type="email" id="registerEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerPassword">Password</label>
+                        <input type="password" id="registerPassword" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerAvatar">Profile Picture (optional)</label>
+                        <input type="file" id="registerAvatar" accept="image/*">
+                    </div>
+                    <button type="submit" class="btn-primary">Create Account</button>
+                </form>
+                <p class="modal-footer">
+                    Already have an account? 
+                    <a href="#" id="showLoginModal">Sign in</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upload Video Modal -->
+    <div class="modal" id="uploadModal">
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h2>Upload Video</h2>
+                <button class="close-btn" id="closeUploadModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="uploadForm">
+                    <div class="upload-section">
+                        <div class="file-upload">
+                            <input type="file" id="videoFile" accept="video/*" required>
+                            <label for="videoFile" class="upload-label">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <span>Choose video file</span>
+                            </label>
+                        </div>
+                        <div class="file-upload">
+                            <input type="file" id="thumbnailFile" accept="image/*" required>
+                            <label for="thumbnailFile" class="upload-label">
+                                <i class="fas fa-image"></i>
+                                <span>Choose thumbnail</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="videoTitle">Title</label>
+                        <input type="text" id="videoTitle" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="videoDescription">Description</label>
+                        <textarea id="videoDescription" rows="4"></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="videoCategory">Category</label>
+                            <select id="videoCategory">
+                                <option value="Other">Other</option>
+                                <option value="Gaming">Gaming</option>
+                                <option value="Music">Music</option>
+                                <option value="Sports">Sports</option>
+                                <option value="Technology">Technology</option>
+                                <option value="Education">Education</option>
+                                <option value="Entertainment">Entertainment</option>
+                                <option value="News">News</option>
+                                <option value="Lifestyle">Lifestyle</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="videoVisibility">Visibility</label>
+                            <select id="videoVisibility">
+                                <option value="public">Public</option>
+                                <option value="unlisted">Unlisted</option>
+                                <option value="private">Private</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="videoTags">Tags (comma separated)</label>
+                        <input type="text" id="videoTags" placeholder="gaming, tutorial, fun">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="videoChannel">Channel</label>
+                        <select id="videoChannel" required>
+                            <!-- User's channels will be loaded here -->
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn-primary">Upload Video</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Scripts -->
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/video.js"></script>
+    <script src="js/search.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
