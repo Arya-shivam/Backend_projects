@@ -59,7 +59,7 @@ class AuthManager {
             // Auto-login after successful registration
             await this.login({ email: userData.email, password: userData.password });
             
-            return data;
+            return data.Data || data.data || data;
         } catch (error) {
             console.error('Registration error:', error);
             throw error;
@@ -85,9 +85,15 @@ class AuthManager {
             }
 
             // Store tokens and user data
-            this.accessToken = data.data.accesstoken || this.extractTokenFromCookies('accesstoken');
-            this.refreshToken = data.data.refreshtoken || this.extractTokenFromCookies('refreshtoken');
-            this.currentUser = data.data;
+            console.log('Login response:', data); // Debug log
+
+            // Handle different response structures
+            const userData = data.Data || data.data || data;
+
+            // Tokens are in HTTP-only cookies, so we extract them or use from response
+            this.accessToken = userData.accesstoken || this.extractTokenFromCookies('accesstoken');
+            this.refreshToken = userData.refreshtoken || userData.refreshToken || this.extractTokenFromCookies('refreshtoken');
+            this.currentUser = userData;
 
             if (this.accessToken) {
                 localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, this.accessToken);
@@ -98,7 +104,7 @@ class AuthManager {
             localStorage.setItem(STORAGE_KEYS.USER_DATA, JSON.stringify(this.currentUser));
 
             this.updateUI();
-            return data;
+            return userData;
         } catch (error) {
             console.error('Login error:', error);
             throw error;
@@ -150,10 +156,12 @@ class AuthManager {
                 throw new Error(data.message || 'Failed to get user data');
             }
 
-            this.currentUser = data.data;
+            // Handle different response structures
+            const userData = data.Data || data.data || data;
+            this.currentUser = userData;
             localStorage.setItem(STORAGE_KEYS.USER_DATA, JSON.stringify(this.currentUser));
-            
-            return data.data;
+
+            return userData;
         } catch (error) {
             console.error('Get current user error:', error);
             throw error;
@@ -180,7 +188,9 @@ class AuthManager {
                 throw new Error(data.message || 'Token refresh failed');
             }
 
-            this.accessToken = data.data.accesstoken;
+            // Handle different response structures
+            const tokenData = data.Data || data.data || data;
+            this.accessToken = tokenData.accesstoken;
             localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, this.accessToken);
             
             return this.accessToken;

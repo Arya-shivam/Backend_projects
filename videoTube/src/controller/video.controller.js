@@ -238,6 +238,6 @@ export {
     updateVideo,
     deleteVideo,
     getUserVideos,
-    getVideosByCategory,
-    incrementVideoViews
+    getVideosByCategory
+    // incrementVideoViews
 }

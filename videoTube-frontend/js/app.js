@@ -245,7 +245,7 @@ class VideoTubeApp {
     }
 
     setupPlaybackControls() {
-        // Additional playback controls can be added here
+        // Additional playback controls can be added here :
         // For now, using native video controls
     }
 

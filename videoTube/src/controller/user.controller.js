@@ -23,13 +23,17 @@ const registerUser = asyncHandler(async (req, res) => {
     $or: [{ username }, { email }],
   });
 
-  if (existedUser) throw new ApiResponse(401, "User already exists");
+  if (existedUser) throw new ApiError(409, "User already exists");
 
   const avatarLocalPath = req.files?.avatar?.[0]?.path;
   const coverLocalPath = req.files?.coverImage?.[0]?.path;
 
-  const avatar = await uploadOnCloudinary(avatarLocalPath);
-  let coverImg = ""
+  let avatar = null;
+  if (avatarLocalPath) {
+    avatar = await uploadOnCloudinary(avatarLocalPath);
+  }
+
+  let coverImg = null;
   if (coverLocalPath) {
     coverImg = await uploadOnCloudinary(coverLocalPath);
   }
@@ -37,7 +41,7 @@ const registerUser = asyncHandler(async (req, res) => {
   //   console.log(avatar,avatarLocalPath,coverImg,coverLocalPath)
   const user = await User.create({
     fullname,
-    avatar: avatar.url,
+    avatar: avatar?.url || "https://via.placeholder.com/150",
     coverImg: coverImg?.url || "",
     email,
     password,

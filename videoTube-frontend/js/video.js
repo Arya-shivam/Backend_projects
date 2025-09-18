@@ -59,10 +59,14 @@ class VideoManager {
             window.uiManager.showLoading('Loading videos...');
             
             const response = await window.apiClient.getVideos(this.currentPage, APP_CONFIG.DEFAULT_PAGE_SIZE);
-            this.currentVideos = response.data.videos || [];
-            
+            console.log('Home videos response:', response); // Debug log
+
+            // Handle different response structures
+            const data = response.Data || response.data || response;
+            this.currentVideos = data.videos || [];
+
             this.renderVideoGrid(this.currentVideos);
-            this.hasMoreVideos = this.currentPage < response.data.totalPages;
+            this.hasMoreVideos = this.currentPage < (data.totalPages || 0);
             
         } catch (error) {
             console.error('Failed to load home videos:', error);
@@ -79,7 +83,11 @@ class VideoManager {
             
             // For now, load videos sorted by views (trending)
             const response = await window.apiClient.getVideos(1, APP_CONFIG.DEFAULT_PAGE_SIZE);
-            this.currentVideos = response.data.videos || [];
+            console.log('Trending videos response:', response); // Debug log
+
+            // Handle different response structures
+            const data = response.Data || response.data || response;
+            this.currentVideos = data.videos || [];
             
             // Sort by views for trending effect
             this.currentVideos.sort((a, b) => (b.views || 0) - (a.views || 0));
@@ -105,8 +113,8 @@ class VideoManager {
             window.uiManager.showLoading('Loading subscription feed...');
             
             const response = await window.apiClient.getSubscriptionFeed(1, APP_CONFIG.DEFAULT_PAGE_SIZE);
-            this.currentVideos = response.data.videos || [];
-            
+            this.currentVideos = response.Data.videos || [];
+
             if (this.currentVideos.length === 0) {
                 this.renderEmptyState('No videos from your subscriptions. Subscribe to channels to see their latest videos here!');
             } else {
@@ -132,8 +140,8 @@ class VideoManager {
             window.uiManager.showLoading('Loading watch history...');
             
             const response = await window.apiClient.getWatchHistory(1, APP_CONFIG.DEFAULT_PAGE_SIZE);
-            this.currentVideos = response.data.videos || [];
-            
+            this.currentVideos = response.Data.videos || [];
+
             if (this.currentVideos.length === 0) {
                 this.renderEmptyState('No watch history yet. Start watching videos to see them here!');
             } else {
@@ -159,8 +167,8 @@ class VideoManager {
             window.uiManager.showLoading('Loading liked videos...');
             
             const response = await window.apiClient.getLikedVideos(1, APP_CONFIG.DEFAULT_PAGE_SIZE);
-            this.currentVideos = response.data.videos || [];
-            
+            this.currentVideos = response.Data.videos || [];
+
             if (this.currentVideos.length === 0) {
                 this.renderEmptyState('No liked videos yet. Like videos to see them here!');
             } else {
@@ -183,10 +191,10 @@ class VideoManager {
             window.uiManager.showLoading(`Loading ${category} videos...`);
             
             const response = await window.apiClient.getVideosByCategory(category, this.currentPage, APP_CONFIG.DEFAULT_PAGE_SIZE);
-            this.currentVideos = response.data.videos || [];
-            
+            this.currentVideos = response.Data.videos || [];
+
             this.renderVideoGrid(this.currentVideos);
-            this.hasMoreVideos = this.currentPage < response.data.totalPages;
+            this.hasMoreVideos = this.currentPage < response.Data.totalPages;
             
         } catch (error) {
             console.error(`Failed to load ${category} videos:`, error);
@@ -205,12 +213,12 @@ class VideoManager {
             this.currentPage++;
             
             const response = await window.apiClient.getVideos(this.currentPage, APP_CONFIG.DEFAULT_PAGE_SIZE);
-            const newVideos = response.data.videos || [];
-            
+            const newVideos = response.Data.videos || [];
+
             this.currentVideos = [...this.currentVideos, ...newVideos];
             this.appendVideosToGrid(newVideos);
-            
-            this.hasMoreVideos = this.currentPage < response.data.totalPages;
+
+            this.hasMoreVideos = this.currentPage < response.Data.totalPages;
             
         } catch (error) {
             console.error('Failed to load more videos:', error);
@@ -337,13 +345,13 @@ class VideoManager {
     async loadVideoComments(videoId) {
         try {
             const response = await window.apiClient.getVideoComments(videoId, 1, 20);
-            const comments = response.data.comments || [];
-            
+            const comments = response.Data.comments || [];
+
             this.renderComments(comments);
-            
+
             const commentCount = document.getElementById('commentCount');
             if (commentCount) {
-                commentCount.textContent = response.data.total || 0;
+                commentCount.textContent = response.Data.total || 0;
             }
             
         } catch (error) {
@@ -396,7 +404,7 @@ class VideoManager {
     async checkVideoLikeStatus(videoId) {
         try {
             const response = await window.apiClient.checkVideoLikeStatus(videoId);
-            const isLiked = response.data.isLiked;
+            const isLiked = response.Data.isLiked;
             
             const likeBtn = document.getElementById('likeBtn');
             if (likeBtn) {
@@ -418,7 +426,7 @@ class VideoManager {
         
         try {
             const response = await window.apiClient.checkSubscriptionStatus(channelId);
-            const isSubscribed = response.data.isSubscribed;
+            const isSubscribed = response.Data.isSubscribed;
             
             const subscribeBtn = document.getElementById('subscribeBtn');
             if (subscribeBtn) {
@@ -522,7 +530,7 @@ class VideoManager {
             window.uiManager.showLoading('Loading playlists...');
             
             const response = await window.apiClient.getPlaylists(1, APP_CONFIG.DEFAULT_PAGE_SIZE);
-            const playlists = response.data.playlists || [];
+            const playlists = response.Data.playlists || [];
             
             if (playlists.length === 0) {
                 this.renderEmptyState('No playlists yet. Create playlists to organize your videos!');

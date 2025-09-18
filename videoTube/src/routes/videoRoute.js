@@ -1,12 +1,11 @@
 import { Router } from "express";
 import { verifyJwt } from "../middlewares/auth.middleware.js";
-import { optionalAuth } from "../middlewares/optionalAuth.middleware.js";
+// import { optionalAuth } from "../middlewares/optionalAuth.middleware.js";
 import {
     getAllVideos,
     getVideoById,
     getUserVideos,
-    getVideosByCategory,
-    incrementVideoViews
+    getVideosByCategory
 } from "../controller/video.controller.js";
 import {
     toggleVideoLike,
@@ -32,7 +31,7 @@ router.route("/category/:category").get(getVideosByCategory);
 router.route("/user/:userId").get(getUserVideos);
 
 // View tracking (optional authentication - works for both logged in and anonymous users)
-router.route("/:videoId/view").post(optionalAuth, incrementVideoViews);
+// router.route("/:videoId/view").post(optionalAuth, incrementVideoViews);
 
 // Video interaction routes (require authentication)
 // Like routes
@@ -41,8 +40,9 @@ router.route("/:videoId/likes").get(getVideoLikes);
 router.route("/:videoId/like-status").get(verifyJwt, checkVideoLikeStatus);
 
 // Comment routes
-router.route("/:videoId/comments").get(getVideoComments);
-router.route("/:videoId/comments").post(verifyJwt, addComment);
+router.route("/:videoId/comments")
+    .get(getVideoComments)
+    .post(verifyJwt, addComment);
 router.route("/comments/:commentId/update").put(verifyJwt, updateComment);
 router.route("/comments/:commentId/delete").delete(verifyJwt, deleteComment);
 router.route("/comments/:commentId/like").post(verifyJwt, toggleCommentLike);

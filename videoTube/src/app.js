@@ -23,13 +23,48 @@ app.use(cors({
 // routes for health Check
 
 app.use("/api/v1/healthCheck",healthCheckRouter)
+
+// Simple test route (using proper pattern)
+app.get('/api/v1/test', (req, res) => {
+    res.json({ message: 'Server is working!' });
+});
 app.use("/api/v1/users",userRouter)
 app.use("/api/v1/videos",videoRouter)
 app.use("/api/v1/channels",channelRouter)
 app.use("/api/v1/subscriptions",subscriptionRouter)
 app.use("/api/v1/search",searchRouter)
 
+// Global error handling middleware
+app.use((err, req, res, next) => {
+    console.error('Error:', err);
 
+    // If it's an API error with statuscode, use it
+    if (err.statuscode) {
+        return res.status(err.statuscode).json({
+            success: false,
+            message: err.message || 'Something went wrong',
+            error: err.error || [],
+            data: null
+        });
+    }
 
+    // Default server error
+    return res.status(500).json({
+        success: false,
+        message: 'Internal Server Error',
+        error: [err.message],
+        data: null
+    });
+});
+
+// 404 handler for undefined routes (using proper pattern)
+app.use((req, res) => {
+    res.status(404).json({
+        success: false,
+        message: `Route ${req.originalUrl} not found`,
+        error: [],
+        data: null
+    });
+});
 
 export {app}
